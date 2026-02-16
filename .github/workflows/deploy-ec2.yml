@@ -1,0 +1,49 @@
+name: Deploy Frontend to EC2
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build application
+        run: npm run build
+        env:
+          VITE_API_URL: https://clientpulse.duckdns.org/api
+      
+      - name: Deploy to EC2
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          EC2_HOST: ${{ secrets.EC2_HOST }}
+          EC2_USER: ubuntu
+        run: |
+          # Setup SSH
+          mkdir -p ~/.ssh
+          echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+          chmod 600 ~/.ssh/id_rsa
+          ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+          
+          # Create directory on EC2 if it doesn't exist
+          ssh $EC2_USER@$EC2_HOST "sudo mkdir -p /var/www/frontend && sudo chown -R $EC2_USER:$EC2_USER /var/www/frontend"
+          
+          # Upload build files using rsync
+          rsync -avz --delete dist/ $EC2_USER@$EC2_HOST:/var/www/frontend/
+          
+          echo "✅ Frontend deployed to EC2!"
