@@ -1,60 +1,66 @@
 # ClientPulse Frontend
 
-Modern React frontend for ClientPulse CSAT (Customer Satisfaction) feedback system built with Vite, React, Tailwind CSS, and React Hook Form.
+Customer Satisfaction (CSAT) Feedback Collection System - React Frontend
 
-## 🚀 Features
+## 🚀 Tech Stack
 
-- ✅ **Public Feedback Form** - Submit customer feedback with ratings and screenshots
-- ✅ **Admin Authentication** - Secure JWT-based login
-- ✅ **Analytics Dashboard** - View feedback statistics and rating distribution
-- ✅ **Report Downloads** - Export data as CSV or JSON
-- ✅ **Responsive Design** - Mobile-first with Tailwind CSS
-- ✅ **Form Validation** - Client-side validation with React Hook Form
-- ✅ **Protected Routes** - Secure admin areas
+- **Framework**: React 19
+- **Build Tool**: Vite 7
+- **Styling**: Tailwind CSS v4
+- **Routing**: React Router DOM 7
+- **Forms**: React Hook Form
+- **HTTP Client**: Axios
+- **Deployment**: EC2 (Static Files via Nginx)
 
-## 📋 Prerequisites
+## ✨ Features
+
+- **Public Feedback Form** - Interactive star rating, file uploads, form validation
+- **Admin Dashboard** - Analytics with 6 metric cards and rating distribution
+- **Dark Mode** - System-wide theme toggle with localStorage persistence
+- **JWT Authentication** - Secure admin login
+- **Responsive Design** - Mobile-first, works on all devices
+- **Protected Routes** - Auth-based navigation
+- **Download Reports** - Export data as CSV/Excel
+
+## 🛠️ Local Development Setup
+
+### Prerequisites
 
 - Node.js 18+ and npm
-- Backend API running at `https://clientpulse.duckdns.org`
 
-## 🛠️ Installation
+### Installation
 
-Dependencies are already installed! If you need to reinstall:
+1. **Clone the repository**
+```bash
+git clone https://github.com/DineshKingston/clientpulse-frontend.git
+cd clientpulse-frontend
+```
 
+2. **Install dependencies**
 ```bash
 npm install
 ```
 
-## ⚙️ Configuration
-
-Environment variables are configured in `.env`:
-
-```env
-VITE_API_URL=https://clientpulse.duckdns.org
+3. **Set up environment variables**
+```bash
+# Create .env file
+echo "VITE_API_URL=http://localhost:8000" > .env
 ```
 
-For local development, change to:
-```env
-VITE_API_URL=http://localhost:8000
-```
-
-## 🎯 Quick Start
-
-### Development Server
-
+4. **Run development server**
 ```bash
 npm run dev
 ```
 
-Visit: http://localhost:5173
+The app will be available at `http://localhost:5173`
 
-### Build for Production
+## 📦 Build for Production
 
 ```bash
 npm run build
 ```
 
-Output: `./dist` folder
+This creates an optimized build in the `dist/` directory.
 
 ### Preview Production Build
 
@@ -62,141 +68,117 @@ Output: `./dist` folder
 npm run preview
 ```
 
+## 🚀 Deployment
+
+### Option 1: EC2 (Current Setup)
+
+Automated deployment via GitHub Actions:
+
+1. **Push to main branch** → Triggers deployment
+2. **Build React app** → Creates optimized bundle
+3. **Deploy to EC2** → Uploads to `/var/www/frontend/`
+
+### Manual Deployment to EC2
+
+```bash
+# Build
+npm run build
+
+# Deploy (replace with your EC2 details)
+rsync -avz -e "ssh -i ~/.ssh/your-key.pem" \
+  --delete dist/ \
+  ubuntu@YOUR_EC2_IP:/var/www/frontend/
+```
+
 ## 📁 Project Structure
 
 ```
-src/
-├── components/
-│   ├── FeedbackForm.jsx    # Public feedback submission form
-│   ├── AdminLogin.jsx      # Admin authentication page
-│   ├── Dashboard.jsx       # Analytics dashboard
-│   └── Navbar.jsx          # Navigation bar
-├── services/
-│   └── api.js              # API service layer (axios)
-├── App.jsx                 # Main app with routing
-├── main.jsx                # Entry point
-└── index.css               # Tailwind CSS + custom styles
+clientpulse-frontend/
+├── src/
+│   ├── components/
+│   │   ├── FeedbackForm.jsx   # Public feedback form
+│   │   ├── AdminLogin.jsx     # Admin authentication
+│   │   ├── Dashboard.jsx      # Analytics dashboard
+│   │   └── Navbar.jsx         # Navigation bar
+│   ├── services/
+│   │   └── api.js             # Axios API client
+│   ├── App.jsx                # Main app + routing
+│   ├── main.jsx               # React entry point
+│   └── index.css              # Global styles + Tailwind
+├── .github/
+│   └── workflows/
+│       └── deploy-ec2.yml     # CI/CD pipeline
+├── public/                    # Static assets
+├── index.html                 # HTML template
+├── vite.config.js            # Vite configuration
+├── tailwind.config.js        # Tailwind CSS config
+└── package.json              # Dependencies
 ```
 
-## 🔗 Routes
+## 🎨 Key Components
 
-| Route | Description | Access |
-|-------|-------------|--------|
-| `/` | Public feedback form | Public |
-| `/login` | Admin login | Public |
-| `/dashboard` | Analytics dashboard | Protected (requires JWT) |
+### FeedbackForm
+- Interactive 1-5 star rating buttons
+- File upload for screenshots
+- Form validation with react-hook-form
+- Dark mode support
 
-## 🎨 Tech Stack
+### Dashboard
+- 6 analytics metric cards:
+  - Total Feedbacks
+  - Overall Average Rating
+  - Unique Ratings
+  - 30-day Average
+  - 60-day Average
+  - 90-day Average
+- Rating distribution visualization
+- Export reports (CSV/Excel)
 
-- **Framework**: React 19.2
-- **Build Tool**: Vite 7.3
-- **Styling**: Tailwind CSS 4.1
-- **Routing**: React Router DOM 7.13
-- **Forms**: React Hook Form 7.71
-- **HTTP Client**: Axios 1.13
-- **Form Plugin**: @tailwindcss/forms 0.5
+### AdminLogin
+- JWT-based authentication
+- Token stored in localStorage
+- Redirect to dashboard on success
 
-## 📡 API Integration
+## 🔐 Authentication Flow
 
-All API calls are configured in `src/services/api.js`:
+1. Admin logs in → Receives JWT token
+2. Token stored in `localStorage`
+3. Axios interceptor adds token to all requests
+4. Protected routes check for token
+5. If missing → Redirect to login
 
-- `submitFeedback(formData)` - Submit customer feedback
-- `adminLogin(credentials)` - Admin authentication
-- `getAnalytics()` - Fetch analytics data
-- `downloadReport(format)` - Download CSV/JSON reports
+## 🌐 Environment Variables
 
-## 🔐 Authentication
-
-JWT tokens are stored in localStorage and automatically included in API requests via axios interceptors.
-
-## 🚢 Deployment Options
-
-### Option 1: Vercel (Recommended)
-
+### Development (`.env`)
 ```bash
-npm install -g vercel
-vercel
+VITE_API_URL=http://localhost:8000
 ```
 
-### Option 2: Netlify
+### Production (`.env.production`)
+```bash
+VITE_API_URL=https://clientpulse.duckdns.org
+```
+
+## 🎯 Available Routes
+
+| Route | Component | Access |
+|-------|-----------|--------|
+| `/` | FeedbackForm | Public |
+| `/login` | AdminLogin | Public |
+| `/dashboard` | Dashboard | Protected (JWT) |
+
+## 🧪 Development Commands
 
 ```bash
+# Start dev server
+npm run dev
+
+# Build for production
 npm run build
-# Upload dist/ folder to Netlify
-```
 
-### Option 3: EC2 (Same Server)
+# Preview production build
+npm run preview
 
-```bash
-npm run build
-scp -r dist/* ubuntu@YOUR_EC2:/var/www/clientpulse-frontend
-```
-
-## 📝 Available Scripts
-
-- `npm run dev` - Start development server
-- `npm run build` - Build for production
-- `npm run preview` - Preview production build
-- `npm run lint` - Run ESLint
-
-## 🧪 Testing
-
-### Test Feedback Submission
-1. Go to http://localhost:5173
-2. Fill out the feedback form
-3. Submit and verify success message
-
-### Test Admin Login
-1. Go to http://localhost:5173/login
-2. Use your admin credentials
-3. Verify redirect to dashboard
-
-### Test Dashboard
-1. Login as admin
-2. View analytics and rating distribution
-3. Test CSV and JSON downloads
-
-## 🎨 Customization
-
-### Change Colors
-
-Edit `tailwind.config.js`:
-
-```javascript
-colors: {
-  primary: {
-    // Your custom color palette
-  }
-}
-```
-
-### Add New Components
-
-```bash
-# Create component
-touch src/components/YourComponent.jsx
-
-# Import in App.jsx
-import YourComponent from './components/YourComponent';
-```
-
-## 🐛 Troubleshooting
-
-### CORS Errors
-
-Make sure backend CORS is configured to allow:
-```python
-CORS_ORIGINS=["http://localhost:5173", "https://yourdomain.com"]
-```
-
-### API Connection Failed
-
-Check `.env` file has correct API URL and backend is running.
-
-### Build Errors
-
-```bash
-# Clear cache and reinstall
-rm -rf node_modules package-lock.json
-npm install
+# Lint code
+npm run lint
 ```
